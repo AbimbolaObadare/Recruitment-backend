@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class JobBase(BaseModel):
     """Base Model For Jobs"""
+
     title: Optional[str] = None
     company: Optional[str] = None
     company_url: Optional[str] = None
@@ -18,11 +19,11 @@ class ShowJob(JobBase):
     "response format for showing jobs"
     title: str
     company: str
-    company_url: Optional[str] 
+    company_url: Optional[str]
     location: str
     date_posted: date
     description: Optional[str]
-    is_active : bool
+    is_active: bool
 
     class Config:  # to convert non dict obj to json
         orm_mode = True
@@ -34,4 +35,4 @@ class JobCreate(JobBase):
     company: str
     location: str
     description: str
-    is_active : bool = False
+    is_active: bool = False
