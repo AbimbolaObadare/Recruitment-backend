@@ -2,8 +2,8 @@ from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
-    PROJECT_TITLE:  str = "Recruitment Website Api"
-    PROJECT_VERSION :str = "0.1.1"
+    PROJECT_TITLE: str = "Recruitment Website Api"
+    PROJECT_VERSION: str = "0.1.1"
     # database_hostname: str
     # database_port: str
     # database_password: str

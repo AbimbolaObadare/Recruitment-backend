@@ -1,8 +1,14 @@
 from typing import List
 
 from db.models.users import Users
-from db.repo.jobs import (create_new_job, delete_job_by_id, list_jobs,
-                          retreive_jobs, update_job_by_id,retreive_jobs_with_id)
+from db.repo.jobs import (
+    create_new_job,
+    delete_job_by_id,
+    list_jobs,
+    retreive_jobs,
+    retreive_jobs_with_id,
+    update_job_by_id,
+)
 from db.repo.users import get_current_user_from_token
 from db.session import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,11 +18,12 @@ from sqlalchemy.orm import Session
 router = APIRouter()
 
 
-
-@router.post(
-    "/create-jobs", status_code=status.HTTP_201_CREATED, response_model=ShowJob
-)
-def create_job(job: JobCreate, db: Session = Depends(get_db),current_user:Users = Depends(get_current_user_from_token)):
+@router.post("/create-jobs", status_code=status.HTTP_201_CREATED, response_model=ShowJob)
+def create_job(
+    job: JobCreate,
+    db: Session = Depends(get_db),
+    current_user: Users = Depends(get_current_user_from_token),
+):
     """Create Jobs router"""
     job = create_new_job(job=job, db=db, owner_id=current_user.id)
     return job
@@ -34,35 +41,34 @@ def get_job(id: int, db: Session = Depends(get_db)):
     """Get post by id"""
     job = retreive_jobs_with_id(id=id, db=db)
     if not job:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Job with id:{id} not found"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job with id:{id} not found")
     return job
 
-@router.put("/update/{id}",response_model=ShowJob)
-def update_job(id:int, job: JobCreate, db:Session=Depends(get_db),current_user: Users = Depends(get_current_user_from_token)):
+
+@router.put("/update/{id}")
+def update_job(
+    id: int,
+    job: JobCreate,
+    db: Session = Depends(get_db),
+    current_user: Users = Depends(get_current_user_from_token),
+):
     """Update job by id"""
-    jobs = retreive_jobs(id=id,db=db)
-    
+    jobs = retreive_jobs(id=id, db=db)
+
     if jobs is None:
-        print("checkinf")
+        print("checking")
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Job with id {id} does not exist",
         )
-    
+
     print(jobs.owner_id, current_user.id, current_user.is_superuser)
     if jobs.owner_id == current_user.id or current_user.is_superuser:
-        update = update_job_by_id(id=id,job=job,db=db)
-        return update
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!"
-    )
+        update_job_by_id(id=id, job=job, db=db)
+        return {"detail": "Sucessfully updated"}
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!")
 
 
-    
-    
 @router.delete("/delete/{id}")
 def delete_job(
     id: int,
@@ -79,8 +85,4 @@ def delete_job(
     if job.owner_id == current_user.id or current_user.is_superuser:
         delete_job_by_id(id=id, db=db)
         return {"detail": "Successfully deleted."}
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!"
-    )
-
-    
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!")
