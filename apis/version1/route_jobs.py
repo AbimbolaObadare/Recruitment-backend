@@ -1,6 +1,6 @@
 from typing import List
 
-from db.models.users import Users
+from db.models.users import User
 from db.repo.jobs import (
     create_new_job,
     delete_job_by_id,
@@ -9,54 +9,53 @@ from db.repo.jobs import (
     retreive_jobs_with_id,
     update_job_by_id,
 )
-from db.repo.users import get_current_user_from_token
-from db.session import get_db
+from apis.version1.route_auth import current_user
+from db.session import get_async_session
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status
 from schemas.jobs import JobCreate, ShowJob
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
 
 @router.post("/create-jobs", status_code=status.HTTP_201_CREATED, response_model=ShowJob)
-def create_job(
+async def create_job(
     job: JobCreate,
-    db: Session = Depends(get_db),
-    current_user: Users = Depends(get_current_user_from_token),
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(current_user),
 ):
     """Create Jobs router"""
-    job = create_new_job(job=job, db=db, owner_id=current_user.id)
+    job = await create_new_job(job=job, db=db, owner_id=current_user.id)
     return job
 
 
 @router.get("/all", status_code=status.HTTP_200_OK, response_model=List[ShowJob])
-def list_job(db: Session = Depends(get_db)):
+async def list_job(db: AsyncSession = Depends(get_async_session)):
     """Get all post from database that are active"""
-    jobs = list_jobs(db)
-    return jobs
+    jobs =  list_jobs(db)
+    return await jobs
 
 
 @router.get("/get/{id}", response_model=ShowJob)
-def get_job(id: int, db: Session = Depends(get_db)):
+async def get_job(id: int, db: AsyncSession = Depends(get_async_session)):
     """Get post by id"""
     job = retreive_jobs_with_id(id=id, db=db)
-    if not job:
+    if job == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job with id:{id} not found")
-    return job
+    return await job
 
 
 @router.put("/update/{id}")
 def update_job(
     id: int,
     job: JobCreate,
-    db: Session = Depends(get_db),
-    current_user: Users = Depends(get_current_user_from_token),
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(current_user),
 ):
     """Update job by id"""
     jobs = retreive_jobs(id=id, db=db)
 
     if jobs is None:
-        print("checking")
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Job with id {id} does not exist",
@@ -72,8 +71,8 @@ def update_job(
 @router.delete("/delete/{id}")
 def delete_job(
     id: int,
-    db: Session = Depends(get_db),
-    current_user: Users = Depends(get_current_user_from_token),
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(current_user),
 ):
     job = retreive_jobs(id=id, db=db)
     if not job:
