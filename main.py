@@ -2,13 +2,8 @@ from fastapi import FastAPI
 
 from apis.base import api_router
 from core.config import settings
-from db.base import Base
-from db.session import engine
-
-
-def create_tables():
-    print("Database Created")
-    Base.metadata.create_all(bind=engine)
+from db.session import create_tables
+from db.utils import check_db_connected
 
 
 def include_router(app):
@@ -24,3 +19,8 @@ def start_app():
 
 
 app = start_app()
+
+
+@app.on_event("startup")
+async def app_startup():
+    await check_db_connected()
