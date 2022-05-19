@@ -30,51 +30,67 @@ async def create_job(
 
 
 @router.get("/all", status_code=status.HTTP_200_OK, response_model=List[ShowJob])
+<<<<<<< HEAD
 async def list_job(db: AsyncSession = Depends(get_async_session)):
     """Get all post from database that are active"""
     jobs =  list_jobs(db)
+=======
+async def list_job():
+    """Get all post from database that are active"""
+    jobs = list_jobs()
+>>>>>>> async-sql
     return await jobs
 
 
 @router.get("/get/{id}", response_model=ShowJob)
+<<<<<<< HEAD
 async def get_job(id: int, db: AsyncSession = Depends(get_async_session)):
     """Get post by id"""
     job = retreive_jobs_with_id(id=id, db=db)
+=======
+async def get_job(id: int):
+    """Get post by id"""
+    job = retreive_jobs_with_id(id=id)
+>>>>>>> async-sql
     if job == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Job with id:{id} not found")
     return await job
 
 
 @router.put("/update/{id}")
-def update_job(
+async def update_job(
     id: int,
     job: JobCreate,
+<<<<<<< HEAD
     db: AsyncSession = Depends(get_async_session),
+=======
+>>>>>>> async-sql
     current_user: User = Depends(current_user),
 ):
     """Update job by id"""
-    jobs = retreive_jobs(id=id, db=db)
+    jobs = await retreive_jobs(id=id)
 
     if jobs is None:
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Job with id {id} does not exist",
         )
-
-    print(jobs.owner_id, current_user.id, current_user.is_superuser)
     if jobs.owner_id == current_user.id or current_user.is_superuser:
-        update_job_by_id(id=id, job=job, db=db)
+        await update_job_by_id(id=id, job=job)
         return {"detail": "Sucessfully updated"}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!")
 
 
 @router.delete("/delete/{id}")
-def delete_job(
+async def delete_job(
     id: int,
+<<<<<<< HEAD
     db: AsyncSession = Depends(get_async_session),
+=======
+>>>>>>> async-sql
     current_user: User = Depends(current_user),
 ):
-    job = retreive_jobs(id=id, db=db)
+    job = await retreive_jobs(id=id)
     if not job:
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -82,6 +98,6 @@ def delete_job(
         )
     print(job.owner_id, current_user.id, current_user.is_superuser)
     if job.owner_id == current_user.id or current_user.is_superuser:
-        delete_job_by_id(id=id, db=db)
+        await delete_job_by_id(id=id)
         return {"detail": "Successfully deleted."}
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You are not permitted!!!!")

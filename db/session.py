@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import asyncio
+=======
+>>>>>>> async-sql
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
@@ -15,7 +18,11 @@ import databases
 
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./dev.db"
 database = databases.Database(SQLALCHEMY_DATABASE_URL)
+<<<<<<< HEAD
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL,echo=True)
+=======
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
+>>>>>>> async-sql
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
@@ -25,14 +32,20 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def create_tables():
+<<<<<<< HEAD
     print("Database Created")
+=======
+>>>>>>> async-sql
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
 
+<<<<<<< HEAD
 task = asyncio.create_task(create_tables())
 
 
+=======
+>>>>>>> async-sql
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)
 
