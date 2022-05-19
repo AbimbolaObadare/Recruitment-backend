@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update, delete
 from db.models.jobs import Job
 from schemas.jobs import JobCreate
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,38 +13,32 @@ async def create_new_job(job: JobCreate, db: AsyncSession, owner_id: int):
     return job_obj
 
 
-async def list_jobs(db: AsyncSession):
+async def list_jobs():
     # TODO: Update to retun only jobs acive and jobs not expired
     job_list = await database.fetch_all(query=select(Job).where(Job.is_active == True))
     return [dict(result) for result in job_list]
 
 
-def retreive_jobs(id: int, db: AsyncSession):
-    item = db.query(Job).filter(Job.id == id).first()
+async def retreive_jobs(id: int):
+    item = await database.fetch_one(query=select(Job).where(Job.id == id))
     return item
 
 
-async def retreive_jobs_with_id(id: int, db: AsyncSession):
-    item = await database.fetch_one(query=select(Job).where(Job.is_active == True).where(Job.id == id))
+async def retreive_jobs_with_id(id: int):
+    item = await database.fetch_one(query=select(Job).where((Job.is_active == True) & (Job.id == id)))
     if item is not None:
         print(item)
         return item
     else:
         return None
 
-    
 
-def update_job_by_id(id: int, job: JobCreate, db: AsyncSession):
-    existing_job = db.query(Job).filter(Job.id == id)
-    existing_job.update(job.__dict__)
-    db.commit()
-    return existing_job.first()
+async def update_job_by_id(id: int, job: JobCreate):
+    existing_job = update(Job).where(Job.id == id).values(**job.dict())
+    await database.execute(existing_job)
+    return existing_job
 
 
-def delete_job_by_id(id: int, db: AsyncSession):
-    existing_job = db.query(Job).filter(Job.id == id)
-    if not existing_job.first():
-        return 0
-    existing_job.delete(synchronize_session=False)
-    db.commit()
-    return 1
+async def delete_job_by_id(id: int):
+    existing_job = delete(Job).where(Job.id == id)
+    return await database.execute(existing_job)
