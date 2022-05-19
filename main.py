@@ -19,5 +19,3 @@ def start_app():
 
 
 app = start_app()
-
-
