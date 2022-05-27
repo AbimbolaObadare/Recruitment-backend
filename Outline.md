@@ -10,7 +10,7 @@ Jobs Endpoints
 
 Recruiter 
 - Can Create, delete and update own post
-- Can Set time for post to delete automatically
+- Can Set time for post to delete automatically(still in work)
 - Can query for successful applicants per post
 - Send email to successful applicants
 

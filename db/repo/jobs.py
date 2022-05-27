@@ -27,7 +27,6 @@ async def retreive_jobs(id: int):
 async def retreive_jobs_with_id(id: int):
     item = await database.fetch_one(query=select(Job).where((Job.is_active == True) & (Job.id == id)))
     if item is not None:
-        print(item)
         return item
     else:
         return None

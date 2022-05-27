@@ -1,4 +1,3 @@
-from email.policy import default
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from db.base_class import Base
 from sqlalchemy import Column, Integer, String, Boolean
